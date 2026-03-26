@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ultra Pro Calculator</title>
+    <style>
+        body {
+            background: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .calculator {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #38bdf8;
+        }
+
+        #display {
+            width: 90%;
+            height: 50px;
+            margin-bottom: 10px;
+            font-size: 22px;
+            text-align: right;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 10px;
+        }
+
+        button {
+            height: 50px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #334155;
+            color: white;
+        }
+
+        button:hover {
+            background: #38bdf8;
+        }
+
+        .equal { background: #22c55e; }
+        .clear { background: #ef4444; }
+
+        /* History Panel */
+        .history {
+            width: 200px;
+            background: #111827;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history.show {
+            display: block;
+        }
+
+        .history p {
+            border-bottom: 1px solid gray;
+            padding: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="calculator">
+        <div class="top-bar">
+            <h3>Calc</h3>
+            <button onclick="toggleHistory()">📜</button>
+        </div>
+
+        <input type="text" id="display" readonly>
+
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="backspace()">⌫</button>
+            <button onclick="append('/')">/</button>
+            <button onclick="append('*')">*</button>
+
+            <button onclick="append('7')">7</button>
+            <button onclick="append('8')">8</button>
+            <button onclick="append('9')">9</button>
+            <button onclick="append('-')">-</button>
+
+            <button onclick="append('4')">4</button>
+            <button onclick="append('5')">5</button>
+            <button onclick="append('6')">6</button>
+            <button onclick="append('+')">+</button>
+
+            <button onclick="append('1')">1</button>
+            <button onclick="append('2')">2</button>
+            <button onclick="append('3')">3</button>
+            <button class="equal" onclick="calculate()">=</button>
+
+            <button onclick="append('0')">0</button>
+            <button onclick="append('.')">.</button>
+        </div>
+    </div>
+
+    <div class="history" id="history">
+        <h3>History</h3>
+        <div id="historyList"></div>
+    </div>
+
+</div>
+
+<script>
+let display = document.getElementById("display");
+let historyDiv = document.getElementById("history");
+let historyList = document.getElementById("historyList");
+
+// Prevent double operators
+function append(value) {
+    let lastChar = display.value.slice(-1);
+
+    if ("+-*/".includes(value) && "+-*/".includes(lastChar)) {
+        return;
+    }
+
+    display.value += value;
+}
+
+function clearDisplay() {
+    display.value = "";
+}
+
+function backspace() {
+    display.value = display.value.slice(0, -1);
+}
+
+function calculate() {
+    try {
+        let expression = display.value;
+        let result = eval(expression);
+
+        if (!isFinite(result)) throw "Error";
+
+        display.value = result;
+
+        // Add to history
+        let entry = document.createElement("p");
+        entry.innerText = expression + " = " + result;
+        historyList.prepend(entry);
+
+    } catch {
+        display.value = "Error";
+    }
+}
+
+// Toggle history panel
+function toggleHistory() {
+    historyDiv.classList.toggle("show");
+}
+
+// Keyboard support
+document.addEventListener("keydown", function(e) {
+    if ((e.key >= '0' && e.key <= '9') || "+-*/.".includes(e.key)) {
+        append(e.key);
+    } else if (e.key === "Enter") {
+        calculate();
+    } else if (e.key === "Backspace") {
+        backspace();
+    } else if (e.key === "Escape") {
+        clearDisplay();
+    }
+});
+</script>
+
+</body>
+</html>
